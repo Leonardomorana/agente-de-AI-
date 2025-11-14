@@ -30,9 +30,18 @@ const ChatAgent: React.FC = () => {
   const [isAiTyping, setIsAiTyping] = useState(false);
   const chatRef = useRef<Chat | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const typingIntervalRef = useRef<number | null>(null);
+
 
   useEffect(() => {
     chatRef.current = createChatSession();
+
+    // Cleanup function to clear interval when component unmounts
+    return () => {
+      if (typingIntervalRef.current) {
+        clearInterval(typingIntervalRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -57,19 +66,20 @@ const ChatAgent: React.FC = () => {
       setMessages(prev => [...prev, aiMessage]);
 
       let index = 0;
-      const interval = setInterval(() => {
+      typingIntervalRef.current = window.setInterval(() => {
         if (index < aiResponseText.length) {
-          setMessages(prevMessages => {
-            const newMessages = [...prevMessages];
-            const lastMessage = newMessages[newMessages.length - 1];
-            if (lastMessage && lastMessage.author === MessageAuthor.AI) {
-              lastMessage.text = aiResponseText.substring(0, index + 1);
-            }
-            return newMessages;
-          });
+          const currentText = aiResponseText.substring(0, index + 1);
+          setMessages(prevMessages =>
+            prevMessages.map(msg =>
+              msg.id === aiMessage.id ? { ...msg, text: currentText } : msg
+            )
+          );
           index++;
         } else {
-          clearInterval(interval);
+          if (typingIntervalRef.current) {
+            clearInterval(typingIntervalRef.current);
+            typingIntervalRef.current = null;
+          }
           setIsAiTyping(false);
         }
       }, 20); // Typing speed in ms
@@ -79,7 +89,7 @@ const ChatAgent: React.FC = () => {
   };
 
   const parseMarkdown = (text: string) => {
-    const rawMarkup = marked(text);
+    const rawMarkup = marked(text, { breaks: true, gfm: true });
     return { __html: rawMarkup };
   };
   
@@ -151,6 +161,7 @@ const ChatAgent: React.FC = () => {
             type="submit"
             disabled={isLoading || isAiTyping || !input.trim()}
             className="bg-red-700 hover:bg-red-800 text-white rounded-full p-3 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-white"
+            aria-label="Enviar mensagem"
           >
             <SendIcon className="w-5 h-5" />
           </button>
