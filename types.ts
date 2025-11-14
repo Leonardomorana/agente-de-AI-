@@ -9,6 +9,7 @@ export interface Source {
 }
 
 export interface Message {
+  id: string;
   author: MessageAuthor;
   text: string;
   sources?: Source[];
