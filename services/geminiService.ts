@@ -2,13 +2,26 @@ import { GoogleGenAI, Chat, GroundingChunk } from "@google/genai";
 import { SYSTEM_INSTRUCTION } from '../constants';
 import { Source } from '../types';
 
-if (!process.env.API_KEY) {
-  throw new Error("API_KEY environment variable not set");
+// Initialize lazily to prevent startup crashes if API_KEY is missing
+let aiClient: GoogleGenAI | null = null;
+
+function getAiClient(): GoogleGenAI {
+  if (!aiClient) {
+    // Safely check for process.env to avoid "ReferenceError: process is not defined" in browser
+    const apiKey = typeof process !== 'undefined' && process.env 
+      ? process.env.API_KEY 
+      : undefined;
+
+    if (!apiKey) {
+      throw new Error("API_KEY environment variable not set. Ensure you have defined 'API_KEY' in your Vercel deployment settings and that your build tool exposes it.");
+    }
+    aiClient = new GoogleGenAI({ apiKey });
+  }
+  return aiClient;
 }
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
 export function createChatSession(): Chat {
+  const ai = getAiClient();
   const chat = ai.chats.create({
     model: 'gemini-2.5-flash',
     config: {

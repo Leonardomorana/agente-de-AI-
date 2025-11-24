@@ -20,10 +20,12 @@ const LinkIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72"></path></svg>
 );
 
+// Safer ID generator for compatibility
+const generateId = () => Math.random().toString(36).substring(2, 15);
 
 const ChatAgent: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
-    { id: crypto.randomUUID(), author: MessageAuthor.AI, text: "Olá! Sou o assistente virtual da Morana Encorp. Como posso ajudar você hoje?" }
+    { id: generateId(), author: MessageAuthor.AI, text: "Olá! Sou o assistente virtual da Morana Encorp. Como posso ajudar você hoje?" }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -34,7 +36,16 @@ const ChatAgent: React.FC = () => {
 
 
   useEffect(() => {
-    chatRef.current = createChatSession();
+    try {
+      chatRef.current = createChatSession();
+    } catch (e) {
+      console.error("Failed to initialize chat:", e);
+      setMessages(prev => [...prev, {
+        id: generateId(),
+        author: MessageAuthor.AI,
+        text: "⚠️ **Aviso**: Não foi possível conectar ao serviço de IA. Verifique se a chave de API está configurada corretamente no ambiente."
+      }]);
+    }
 
     // Cleanup function to clear interval when component unmounts
     return () => {
@@ -52,7 +63,21 @@ const ChatAgent: React.FC = () => {
     e.preventDefault();
     if (!input.trim() || isLoading || isAiTyping) return;
 
-    const userMessage: Message = { id: crypto.randomUUID(), author: MessageAuthor.USER, text: input };
+    // Try to re-initialize if it failed previously
+    if (!chatRef.current) {
+       try {
+         chatRef.current = createChatSession();
+       } catch (e) {
+         setMessages(prev => [...prev, { 
+           id: generateId(), 
+           author: MessageAuthor.AI, 
+           text: "Erro: Serviço de IA indisponível." 
+         }]);
+         return;
+       }
+    }
+
+    const userMessage: Message = { id: generateId(), author: MessageAuthor.USER, text: input };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
@@ -62,7 +87,7 @@ const ChatAgent: React.FC = () => {
       setIsLoading(false);
       setIsAiTyping(true);
       
-      const aiMessage: Message = { id: crypto.randomUUID(), author: MessageAuthor.AI, text: '', sources: aiResponseSources };
+      const aiMessage: Message = { id: generateId(), author: MessageAuthor.AI, text: '', sources: aiResponseSources };
       setMessages(prev => [...prev, aiMessage]);
 
       let index = 0;

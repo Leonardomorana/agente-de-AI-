@@ -129,6 +129,10 @@ export const FAQ_DATA: FaqItem[] = [
     answer: "Temos opções para cada perfil. Para os empreendimentos Morana (MCMV), o principal caminho é o financiamento pela Caixa Econômica Federal, que oferece subsídios e as menores taxas de juros do mercado. Para os projetos Encorp (alto padrão), trabalhamos com os principais bancos privados para financiamento imobiliário, além de oferecer planos de pagamento direto durante a fase de obras."
   },
   {
+    question: "Quais documentos preciso para comprar um imóvel?",
+    answer: "A documentação varia um pouco entre o financiamento MCMV e a compra de um imóvel de alto padrão, mas geralmente você precisará de: RG e CPF (ou CNH), comprovante de estado civil (certidão de nascimento ou casamento), comprovante de residência atualizado, e comprovante de renda (holerites, imposto de renda). Para o financiamento, o banco solicitará documentos adicionais. Nossa equipe comercial irá orientá-lo em cada etapa para garantir que tudo esteja correto."
+  },
+  {
     question: "É possível personalizar o meu apartamento durante a construção?",
     answer: "A personalização é um dos diferenciais da Encorp para seus empreendimentos de alto padrão, reforçando o foco em conforto e exclusividade. Devido às características do programa, os imóveis da Morana (MCMV) seguem um projeto padronizado para garantir o melhor custo-benefício e agilidade na entrega. Consulte nossa equipe para saber mais sobre as opções para cada projeto."
   },
