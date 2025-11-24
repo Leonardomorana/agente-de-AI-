@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Message, MessageAuthor } from '../types';
 import { createChatSession, sendMessageToAI } from '../services/geminiService';
@@ -25,7 +26,7 @@ const generateId = () => Math.random().toString(36).substring(2, 15);
 
 const ChatAgent: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
-    { id: generateId(), author: MessageAuthor.AI, text: "Olá! Sou o assistente virtual da Morana Encorp. Como posso ajudar você hoje?" }
+    { id: generateId(), author: MessageAuthor.AI, text: "Olá! Sou o assistente virtual da **Morana Encorp**. \n\nEstou aqui para tirar suas dúvidas sobre nossos empreendimentos, financiamento e muito mais. Como posso ajudar você hoje?" }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -47,7 +48,6 @@ const ChatAgent: React.FC = () => {
       }]);
     }
 
-    // Cleanup function to clear interval when component unmounts
     return () => {
       if (typingIntervalRef.current) {
         clearInterval(typingIntervalRef.current);
@@ -107,7 +107,7 @@ const ChatAgent: React.FC = () => {
           }
           setIsAiTyping(false);
         }
-      }, 20); // Typing speed in ms
+      }, 15); // Faster typing speed
     } else {
       setIsLoading(false);
     }
@@ -126,29 +126,45 @@ const ChatAgent: React.FC = () => {
     }
   }
 
-
   return (
-    <div className="flex flex-col flex-grow bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-      <div className="flex-grow p-4 md:p-6 space-y-6 overflow-y-auto">
+    <div className="flex flex-col h-full bg-white relative">
+      <div className="flex-grow p-4 md:p-8 space-y-6 overflow-y-auto custom-scrollbar pb-24">
         {messages.map((msg) => (
-          <div key={msg.id} className={`flex items-start gap-3 ${msg.author === MessageAuthor.USER ? 'justify-end' : 'justify-start'} animate-fadeInUp`}>
-            {msg.author === MessageAuthor.AI && <div className="flex-shrink-0 w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center"><AiIcon className="w-5 h-5" /></div>}
-            <div className={`max-w-md md:max-w-lg p-3 rounded-lg shadow-sm ${msg.author === MessageAuthor.USER ? 'bg-red-700 text-white rounded-br-none' : 'bg-gray-200 text-gray-800 rounded-bl-none'}`}>
-              <div className={`prose prose-sm max-w-none ${msg.author === MessageAuthor.USER ? 'prose-invert' : ''}`} dangerouslySetInnerHTML={parseMarkdown(msg.text)} />
+          <div key={msg.id} className={`flex items-start gap-4 ${msg.author === MessageAuthor.USER ? 'justify-end' : 'justify-start'} animate-fadeInUp`}>
+            
+            {msg.author === MessageAuthor.AI && (
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-red-50 border border-red-100 text-red-700 flex items-center justify-center shadow-sm mt-1">
+                <AiIcon className="w-5 h-5" />
+              </div>
+            )}
+            
+            <div className={`relative max-w-[85%] md:max-w-lg p-4 md:p-5 shadow-sm
+              ${msg.author === MessageAuthor.USER 
+                ? 'bg-red-700 text-white rounded-2xl rounded-tr-none' 
+                : 'bg-gray-100 text-gray-800 rounded-2xl rounded-tl-none border border-gray-100'
+              }`}
+            >
+              <div 
+                className={`prose prose-sm md:prose-base max-w-none leading-relaxed ${msg.author === MessageAuthor.USER ? 'prose-invert' : 'prose-headings:text-gray-900 prose-a:text-red-700'}`} 
+                dangerouslySetInnerHTML={parseMarkdown(msg.text)} 
+              />
+              
               {msg.sources && msg.sources.length > 0 && !isAiTyping && (
-                <div className="mt-4 pt-3 border-t border-gray-300/70">
-                  <h4 className="text-xs font-semibold text-gray-500 mb-2">Fontes:</h4>
-                  <ul className="space-y-1.5">
+                <div className="mt-4 pt-3 border-t border-gray-300/50">
+                  <h4 className="text-xs font-semibold uppercase tracking-wider opacity-70 mb-2 flex items-center gap-1">
+                    <LinkIcon className="w-3 h-3" /> Fontes verificadas
+                  </h4>
+                  <ul className="space-y-1">
                     {msg.sources.map((source, idx) => (
-                      <li key={idx} className="flex items-center gap-2">
-                        <LinkIcon className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                      <li key={idx}>
                         <a 
                           href={source.uri} 
                           target="_blank" 
                           rel="noopener noreferrer" 
-                          className="text-xs text-blue-600 hover:underline truncate"
+                          className="text-xs inline-flex items-center gap-1.5 opacity-90 hover:opacity-100 hover:underline truncate w-full"
                           title={source.title}
                         >
+                          <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
                           {source.title && source.title.trim() !== getHostname(source.uri) ? source.title : getHostname(source.uri)}
                         </a>
                       </li>
@@ -157,35 +173,44 @@ const ChatAgent: React.FC = () => {
                 </div>
               )}
             </div>
-             {msg.author === MessageAuthor.USER && <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center"><UserIcon className="w-5 h-5" /></div>}
+
+            {msg.author === MessageAuthor.USER && (
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-200 border border-gray-300 text-gray-600 flex items-center justify-center shadow-sm mt-1">
+                <UserIcon className="w-5 h-5" />
+              </div>
+            )}
           </div>
         ))}
+        
         {isLoading && (
-          <div className="flex items-start gap-3 justify-start animate-fadeInUp">
-             <div className="flex-shrink-0 w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center"><AiIcon className="w-5 h-5" /></div>
-            <div className="max-w-xs p-3 rounded-lg shadow-sm bg-gray-200 flex items-center space-x-2">
-              <span className="w-2 h-2 bg-red-600 rounded-full animate-pulse delay-0"></span>
-              <span className="w-2 h-2 bg-red-600 rounded-full animate-pulse delay-150"></span>
-              <span className="w-2 h-2 bg-red-600 rounded-full animate-pulse delay-300"></span>
+          <div className="flex items-start gap-4 justify-start animate-fadeInUp">
+             <div className="flex-shrink-0 w-10 h-10 rounded-full bg-red-50 border border-red-100 text-red-700 flex items-center justify-center shadow-sm">
+               <AiIcon className="w-5 h-5" />
+             </div>
+            <div className="p-4 rounded-2xl rounded-tl-none bg-gray-100 border border-gray-100 flex items-center space-x-2">
+              <span className="w-2 h-2 bg-red-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+              <span className="w-2 h-2 bg-red-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+              <span className="w-2 h-2 bg-red-400 rounded-full animate-bounce"></span>
             </div>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
-      <div className="p-4 bg-white border-t border-gray-200">
-        <form onSubmit={handleSendMessage} className="flex items-center gap-3">
+
+      <div className="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 p-4 md:p-5 z-10">
+        <form onSubmit={handleSendMessage} className="relative flex items-center gap-3 max-w-4xl mx-auto">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Digite sua pergunta aqui..."
-            className="flex-grow bg-gray-100 rounded-full py-2 px-4 text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-600 transition-shadow"
+            placeholder="Digite sua pergunta sobre a Morana Encorp..."
+            className="w-full bg-gray-100 text-gray-800 rounded-full py-3.5 pl-6 pr-14 border border-transparent focus:border-red-300 focus:bg-white focus:outline-none focus:ring-4 focus:ring-red-100 transition-all shadow-inner"
             disabled={isLoading || isAiTyping}
           />
           <button
             type="submit"
             disabled={isLoading || isAiTyping || !input.trim()}
-            className="bg-red-700 hover:bg-red-800 text-white rounded-full p-3 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-white"
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-red-700 hover:bg-red-800 text-white rounded-full p-2.5 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed transition-all transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2"
             aria-label="Enviar mensagem"
           >
             <SendIcon className="w-5 h-5" />

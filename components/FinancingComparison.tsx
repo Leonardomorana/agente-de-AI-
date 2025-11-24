@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 const CheckIcon: React.FC = () => (
@@ -14,33 +15,35 @@ const UserIcon: React.FC = () => (
 
 
 const ComparisonCard: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-    <div className="bg-gray-50 p-6 rounded-lg w-full border border-gray-200">
-        <h2 className="text-xl md:text-2xl font-bold text-red-700 mb-4 text-center">{title}</h2>
-        <div className="space-y-4">{children}</div>
+    <div className="bg-gray-50 p-6 md:p-8 rounded-2xl w-full border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300">
+        <h2 className="text-xl md:text-2xl font-bold text-red-700 mb-6 text-center border-b border-gray-200 pb-4">{title}</h2>
+        <div className="space-y-6">{children}</div>
     </div>
 );
 
 const InfoSection: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
     <div>
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">{title}</h3>
-        <div className="text-gray-600 space-y-2 text-sm md:text-base">{children}</div>
+        <h3 className="text-lg font-bold text-gray-800 mb-3">{title}</h3>
+        <div className="text-gray-600 space-y-3 text-sm md:text-base leading-relaxed">{children}</div>
     </div>
 );
 
 const ListItem: React.FC<{ icon: React.ReactNode; children: React.ReactNode }> = ({ icon, children }) => (
-    <div className="flex items-start">
-        {icon}
+    <div className="flex items-start bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
+        <div className="mt-0.5">{icon}</div>
         <span>{children}</span>
     </div>
 );
 
 const FinancingComparison: React.FC = () => {
     return (
-        <div className="w-full mx-auto bg-white/80 rounded-lg shadow-lg border border-gray-200 overflow-hidden p-4 md:p-8 animate-fadeInUp">
-            <h1 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-2">Comparativo de Modalidades de Financiamento</h1>
-            <p className="text-center text-gray-600 mb-8 max-w-3xl mx-auto">
-                Entenda as principais diferenças entre o Crédito Associativo, comum em programas como Minha Casa Minha Vida, e o plano de pagamento direto com a construtora.
-            </p>
+        <div className="animate-fadeInUp space-y-8">
+            <div className="text-center max-w-3xl mx-auto space-y-4">
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Comparativo de Modalidades de Financiamento</h1>
+                <p className="text-gray-600 text-lg">
+                    Entenda as principais diferenças entre o Crédito Associativo, comum em programas como Minha Casa Minha Vida, e o plano de pagamento direto com a construtora.
+                </p>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 {/* Coluna Financiamento Associativo */}
@@ -80,7 +83,7 @@ const FinancingComparison: React.FC = () => {
 
                     <InfoSection title="Perfil Ideal">
                         <ListItem icon={<UserIcon />}>
-                            Compradores que buscam o primeiro imóvel, se enquadram no Minha Casa Minha Vida e querem segurança total no processo, garantindo o crédito e o valor do imóvel desde o início.
+                            Compradores que buscam o primeiro imóvel, se enquadram no Minha Casa Minha Vida e querem segurança total no processo.
                         </ListItem>
                     </InfoSection>
                 </ComparisonCard>
@@ -116,16 +119,16 @@ const FinancingComparison: React.FC = () => {
                             <strong>Risco de Crédito:</strong> A aprovação do financiamento não é garantida. Sua situação financeira pode mudar até a entrega das chaves.
                         </ListItem>
                         <ListItem icon={<WarningIcon />}>
-                            <strong>Correção pelo INCC:</strong> O saldo devedor a ser financiado aumenta durante a obra, pois é corrigido pelo INCC, que pode variar bastante.
+                            <strong>Correção pelo INCC:</strong> O saldo devedor a ser financiado aumenta durante a obra, pois é corrigido pelo INCC.
                         </ListItem>
                         <ListItem icon={<WarningIcon />}>
-                            <strong>Taxas Futuras:</strong> As taxas de juros do financiamento bancário podem estar mais altas no futuro, quando você for contratar.
+                            <strong>Taxas Futuras:</strong> As taxas de juros do financiamento bancário podem estar mais altas no futuro.
                         </ListItem>
                     </InfoSection>
                     
                      <InfoSection title="Perfil Ideal">
                         <ListItem icon={<UserIcon />}>
-                            Compradores com boa reserva para a entrada, investidores, ou quem precisa de mais tempo para se preparar para o financiamento bancário e entende os riscos da correção pelo INCC.
+                            Compradores com boa reserva para a entrada, investidores, ou quem precisa de mais tempo para se preparar para o financiamento bancário.
                         </ListItem>
                     </InfoSection>
                 </ComparisonCard>
