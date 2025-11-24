@@ -7,13 +7,19 @@ let aiClient: GoogleGenAI | null = null;
 
 function getAiClient(): GoogleGenAI {
   if (!aiClient) {
-    // Safely check for process.env to avoid "ReferenceError: process is not defined" in browser
-    const apiKey = typeof process !== 'undefined' && process.env 
-      ? process.env.API_KEY 
-      : undefined;
+    let apiKey: string | undefined;
+
+    try {
+      // Direct access allows bundlers (Vite/Webpack) to replace 'process.env.API_KEY' with the actual string literal
+      // even if the global 'process' object doesn't exist in the browser.
+      apiKey = process.env.API_KEY;
+    } catch (e) {
+      // If 'process' is not defined and no replacement happened, ignore the ReferenceError
+      console.warn("Could not access process.env.API_KEY directly.");
+    }
 
     if (!apiKey) {
-      throw new Error("API_KEY environment variable not set. Ensure you have defined 'API_KEY' in your Vercel deployment settings and that your build tool exposes it.");
+      throw new Error("API_KEY environment variable not set. Ensure you have defined 'API_KEY' in your Vercel deployment settings.");
     }
     aiClient = new GoogleGenAI({ apiKey });
   }
